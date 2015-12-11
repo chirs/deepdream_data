@@ -105,7 +105,7 @@ def deepdream(net, base_img, iter_n=10, octave_n=4, octave_scale=1.4,
     return deprocess(net, src.data[0])
 
 
-img = np.float32(PIL.Image.open('sky1024px.jpg'))
+img = np.float32(PIL.Image.open('/home/chris/deepdream/sky1024px.jpg'))
 showarray(img)
 
 
