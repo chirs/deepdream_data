@@ -14,26 +14,15 @@ import caffe
 # caffe.set_device(0) # select GPU device if multiple devices exist
 
 def showarray(a, fmt='jpeg'):
+    """
+    """
+
     a = np.uint8(np.clip(a, 0, 255))
     f = StringIO()
     PIL.Image.fromarray(a).save(f, fmt)
     display(Image(data=f.getvalue()))
 
 
-model_path = '/home/chris/dd/deep-dream/caffe/models/bvlc_googlenet/' # substitute your path here
-net_fn   = model_path + 'deploy.prototxt'
-param_fn = model_path + 'bvlc_googlenet.caffemodel'
-
-# Patching model to be able to compute gradients.
-# Note that you can also manually add "force_backward: true" line to "deploy.prototxt".
-model = caffe.io.caffe_pb2.NetParameter()
-text_format.Merge(open(net_fn).read(), model)
-model.force_backward = True
-open('tmp.prototxt', 'w').write(str(model))
-
-net = caffe.Classifier('tmp.prototxt', param_fn,
-                       mean = np.float32([104.0, 116.0, 122.0]), # ImageNet mean, training set dependent
-                       channel_swap = (2,1,0)) # the reference model has channels in BGR order instead of RGB
 
 # a couple of utility functions for converting to and from Caffe's input image layout
 def preprocess(net, img):
@@ -111,12 +100,38 @@ def deepdream(net, base_img, iter_n=10, octave_n=4, octave_scale=1.4,
             
         # extract details produced on the current octave
         detail = src.data[0]-octave_base
+
     # returning the resulting image
     return deprocess(net, src.data[0])
 
 
-img = np.float32(PIL.Image.open('/home/chris/deepdream/sky1024px.jpg'))
-showarray(img)
 
 
-_=deepdream(net, img)
+def main():
+    model_path = '/home/chris/dd/deep-dream/caffe/models/bvlc_googlenet/'
+    net_fn   = model_path + 'deploy.prototxt'
+    param_fn = model_path + 'bvlc_googlenet.caffemodel'
+
+    # Patching model to be able to compute gradients.
+    # Note that you can also manually add "force_backward: true" line to "deploy.prototxt".
+    model = caffe.io.caffe_pb2.NetParameter()
+    text_format.Merge(open(net_fn).read(), model)
+    model.force_backward = True
+    open('tmp.prototxt', 'w').write(str(model))
+
+    net = caffe.Classifier('tmp.prototxt', param_fn,
+                           mean = np.float32([104.0, 116.0, 122.0]), # ImageNet mean, training set dependent
+                           channel_swap = (2,1,0)) # the reference model has channels in BGR order instead of RGB
+
+
+    img = np.float32(PIL.Image.open('/home/chris/deepdream/sky1024px.jpg'))
+    showarray(img)
+
+    return deepdream(net, img)
+
+
+if __name__ == "__main__":
+
+    result = main()
+    import pdb; pdb.set_trace()
+    x = 5
