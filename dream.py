@@ -72,6 +72,7 @@ def make_step(net, step_size=1.5, end='inception_4c/output',
 
 def deepdream(net, base_img, iter_n=10, octave_n=4, octave_scale=1.4, 
               end='inception_4c/output', clip=True, **step_params):
+
     # prepare base images for all octaves
     octaves = [preprocess(net, base_img)]
     for i in xrange(octave_n-1):
@@ -79,7 +80,12 @@ def deepdream(net, base_img, iter_n=10, octave_n=4, octave_scale=1.4,
     
     src = net.blobs['data']
     detail = np.zeros_like(octaves[-1]) # allocate image for network-produced details
+
+    print("octaves: %s" % len(octaves))
+
     for octave, octave_base in enumerate(octaves[::-1]):
+        print("octave #%s" % octave)
+
         h, w = octave_base.shape[-2:]
         if octave > 0:
             # upscale details from the previous octave
@@ -88,7 +94,11 @@ def deepdream(net, base_img, iter_n=10, octave_n=4, octave_scale=1.4,
 
         src.reshape(1,3,h,w) # resize the network's input image size
         src.data[0] = octave_base+detail
+
+        print("steps: %s" % iter_n)
         for i in xrange(iter_n):
+            print("step #%s" % i)
+
             make_step(net, end=end, clip=clip, **step_params)
             
             # visualization
