@@ -23,6 +23,17 @@ def showarray(a, fmt='jpeg'):
     display(Image(data=f.getvalue()))
 
 
+def savearray(a, filename, fmt='png'):
+    """
+    """
+
+    a = np.uint8(np.clip(a, 0, 255))
+    with open(filename, 'wb') as f:
+        PIL.Image.fromarray(a).save(f, fmt)
+        #display(Image(data=f.getvalue()))
+
+
+
 
 # a couple of utility functions for converting to and from Caffe's input image layout
 def preprocess(net, img):
@@ -133,5 +144,4 @@ def main():
 if __name__ == "__main__":
 
     result = main()
-    import pdb; pdb.set_trace()
-    x = 5
+    savearray(result, "tmp.jpg")
